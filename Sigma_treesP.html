@@ -50,19 +50,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             padding: 20px;
         }
 
         .browser-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             background-color: var(--container-bg);
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
         }
 
         /* Mock Browser Top Bar */
@@ -112,12 +114,12 @@
 
         /* Content Area */
         .content {
-            padding: 50px 20px;
+            padding: 30px 20px 20px 20px;
             text-align: center;
         }
 
         h1 {
-            font-size: 2.8rem;
+            font-size: 2.4rem;
             margin-bottom: 8px;
             color: var(--accent-color);
         }
@@ -125,13 +127,13 @@
         p.subtitle {
             color: var(--text-color);
             opacity: 0.7;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 0.95rem;
         }
 
         /* Search Section */
         .search-box {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .search-form {
@@ -143,7 +145,7 @@
         .search-input {
             width: 100%;
             max-width: 450px;
-            padding: 14px 20px;
+            padding: 12px 20px;
             border-radius: 30px;
             border: 2px solid var(--border-color);
             background-color: var(--input-bg);
@@ -157,7 +159,7 @@
         }
 
         .search-btn {
-            padding: 14px 28px;
+            padding: 12px 24px;
             border-radius: 30px;
             border: none;
             background-color: var(--accent-color);
@@ -174,9 +176,24 @@
         .warning-msg {
             color: #ff5f56;
             font-weight: bold;
-            margin-top: 15px;
+            margin-top: 10px;
             min-height: 20px;
             font-size: 14px;
+        }
+
+        /* Embedded Browser Window */
+        .browser-window-wrapper {
+            width: 100%;
+            height: 500px;
+            border-top: 1px solid var(--border-color);
+            background-color: #ffffff;
+            display: none; /* Hidden until a search happens */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
@@ -192,7 +209,6 @@
             </div>
             <div class="title-display">Sigma_Trees Proxy Portal</div>
             
-            <!-- Theme Changer drop down menu -->
             <select class="theme-select" id="themeSelector" onchange="changeTheme(this.value)">
                 <option value="dark">🌙 Dark Theme</option>
                 <option value="light">☀️ Light Theme</option>
@@ -203,21 +219,24 @@
         <!-- Portal Core Body -->
         <div class="content">
             <h1>Sigma_Trees Proxy</h1>
-            <p class="subtitle">Secure DuckDuckGo Portal with Strict Family Filtering Activated</p>
+            <p class="subtitle">Secure Same-Tab Portal with Strict Family Filtering Activated</p>
 
             <div class="search-box">
-                <!-- Javascript intercepts form submission to filter blocked keywords -->
                 <form class="search-form" id="searchForm" onsubmit="return handleSearch(event)">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search DuckDuckGo safely..." required>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search the web securely..." required>
                     <button type="submit" class="search-btn">Search</button>
                 </form>
                 <div id="warningBox" class="warning-msg"></div>
             </div>
         </div>
+
+        <!-- Embedded Browser Window Frame -->
+        <div class="browser-window-wrapper" id="windowWrapper">
+            <iframe id="browserIframe" src=""></iframe>
+        </div>
     </div>
 
     <script>
-        // Theme Changer script
         function changeTheme(themeName) {
             document.documentElement.setAttribute('data-theme', themeName);
         }
@@ -228,32 +247,35 @@
         ];
 
         function handleSearch(event) {
-            event.preventDefault(); // Stop page reload
+            event.preventDefault(); 
             
             const searchInput = document.getElementById('searchInput').value.trim();
             const warningBox = document.getElementById('warningBox');
+            const wrapper = document.getElementById('windowWrapper');
+            const iframe = document.getElementById('browserIframe');
             
-            // Clean up text input to check against banned words list
             const cleanQuery = searchInput.toLowerCase();
-
-            // Check if search contains any blocked phrases
             const containsBanned = bannedKeywords.some(word => cleanQuery.includes(word));
 
             if (containsBanned) {
                 warningBox.innerText = "⚠️ Search blocked. Inappropriate content filter triggered.";
-                document.getElementById('searchInput').value = ""; // Erase query
+                document.getElementById('searchInput').value = ""; 
+                wrapper.style.display = "none"; // Hide window if blocked
                 return false;
             }
 
-            warningBox.innerText = ""; // Clear errors
+            warningBox.innerText = ""; 
             
-            // DuckDuckGo URL with parameters forcing maximum strict SafeSearch settings (&kp=1)
-            const safeSearchUrl = "https://duckduckgo.com" + encodeURIComponent(searchInput);
+            // Uses Bing since Google/DuckDuckGo block themselves from being put inside iframes
+            // Forces strict filtering directly through the URL parameters
+            const safeSearchUrl = "https://bing.com" + encodeURIComponent(searchInput);
             
-            // Open search safely in a new window tab
-            window.open(safeSearchUrl, '_blank');
+            // Set the frame source and make the browser block visible
+            iframe.src = safeSearchUrl;
+            wrapper.style.display = "block";
         }
     </script>
 </body>
 </html>
+
 
