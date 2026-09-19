@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigma_Trees Proxy Dashboard</title>
+    <style>
+        /* Theme Configurations */
+        :root {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --top-bar-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --accent-color: #10b981;
+            --border-color: #333333;
+            --input-bg: #121212;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f3f4f6;
+            --container-bg: #ffffff;
+            --top-bar-bg: #e5e7eb;
+            --text-color: #1f2937;
+            --accent-color: #2563eb;
+            --border-color: #d1d5db;
+            --input-bg: #f9fafb;
+        }
+
+        [data-theme="cyberpunk"] {
+            --bg-color: #0b001a;
+            --container-bg: #1a0033;
+            --top-bar-bg: #330066;
+            --text-color: #00ffcc;
+            --accent-color: #ff007f;
+            --border-color: #ff007f;
+            --input-bg: #0b001a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .browser-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+
+        /* Mock Browser Top Bar */
+        .top-bar {
+            background-color: var(--top-bar-bg);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background-color: #ff5f56; }
+        .dot.yellow { background-color: #ffbd2e; }
+        .dot.green { background-color: #27c93f; }
+
+        .title-display {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--text-color);
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* Theme Selector */
+        .theme-select {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+        }
+
+        p.subtitle {
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        /* Search Section */
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 450px;
+            padding: 14px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .search-btn {
+            padding: 14px 28px;
+            border-radius: 30px;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .search-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Warning Message Label */
+        .warning-msg {
+            color: #ff5f56;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="browser-container">
+        <!-- Top Controls Bar -->
+        <div class="top-bar">
+            <div class="dots">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+            <div class="title-display">Sigma_Trees Proxy Portal</div>
+            
+            <!-- Theme Changer drop down menu -->
+            <select class="theme-select" id="themeSelector" onchange="changeTheme(this.value)">
+                <option value="dark">🌙 Dark Theme</option>
+                <option value="light">☀️ Light Theme</option>
+                <option value="cyberpunk">👾 Cyberpunk</option>
+            </select>
+        </div>
+
+        <!-- Portal Core Body -->
+        <div class="content">
+            <h1>Sigma_Trees Proxy</h1>
+            <p class="subtitle">Secure DuckDuckGo Portal with Strict Family Filtering Activated</p>
+
+            <div class="search-box">
+                <!-- Javascript intercepts form submission to filter blocked keywords -->
+                <form class="search-form" id="searchForm" onsubmit="return handleSearch(event)">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search DuckDuckGo safely..." required>
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+                <div id="warningBox" class="warning-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Changer script
+        function changeTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+        }
+
+        // List of banned word patterns to protect siblings
+        const bannedKeywords = [
+            "nude", "naked", "adult", "porn", "xxx", "sex", "nsfw", "breasts"
+        ];
+
+        function handleSearch(event) {
+            event.preventDefault(); // Stop page reload
+            
+            const searchInput = document.getElementById('searchInput').value.trim();
+            const warningBox = document.getElementById('warningBox');
+            
+            // Clean up text input to check against banned words list
+            const cleanQuery = searchInput.toLowerCase();
+
+            // Check if search contains any blocked phrases
+            const containsBanned = bannedKeywords.some(word => cleanQuery.includes(word));
+
+            if (containsBanned) {
+                warningBox.innerText = "⚠️ Search blocked. Inappropriate content filter triggered.";
+                document.getElementById('searchInput').value = ""; // Erase query
+                return false;
+            }
+
+            warningBox.innerText = ""; // Clear errors
+            
+            // DuckDuckGo URL with parameters forcing maximum strict SafeSearch settings (&kp=1)
+            const safeSearchUrl = "https://duckduckgo.com" + encodeURIComponent(searchInput);
+            
+            // Open search safely in a new window tab
+            window.open(safeSearchUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
